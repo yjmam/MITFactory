@@ -245,7 +245,7 @@
 								<a href="/pension">
 									<h1 class="counter-title">
 										<i class="bi bi-calculator"></i>
-									</h1> <span class="counter-text">연금간편계산기</span>
+									</h1> <span class="counter-text">연금진짜간편계산기</span>
 								</a>
 							</div>
 						</div>
