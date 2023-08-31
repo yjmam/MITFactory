@@ -184,7 +184,7 @@
 	<!-- form-close -->
 
 	<div class="space-large"></div>
-
+<!-- 8월31일 수정  -->
 	<!-- footer start -->
 	<%@include file="../footer.jsp"%>
 	<!-- footer close -->
