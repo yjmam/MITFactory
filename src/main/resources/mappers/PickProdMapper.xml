@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mit.mapper.PickProdMapper">
+
+	<insert id="insert" parameterType="java.util.List">
+		INSERT INTO pickprod (policy_number, product_id, risk_level)
+		VALUES
+		<foreach item="item" collection="list" separator=",">
+			(#{item.policyNumber}, #{item.productId}, #{item.riskLevel})
+		</foreach>
+	</insert>
+
+	<!-- 선택상품 전체조회 -->
+	<select id="selectAll" resultType="PickProdDTO"
+		parameterType="hashMap">
+		SELECT * FROM pickprod
+	</select>
+
+	<select id="selectPolicyNumber" resultType="PickProdDTO">
+		SELECT
+		pickprod.policy_number, pickprod.product_id,
+		product.product_name,
+		product.risk_level,product.manage_company, product.fee,
+		product.total_return, product.rate
+		FROM
+		pickprod
+		INNER JOIN product on
+		pickprod.product_id =
+		product.id
+		WHERE
+		pickprod.policy_number =
+		#{policyNumber}
+	</select>
+
+	<update id="updateRatio"
+		parameterType="com.mit.model.PickProdDTO">
+		UPDATE pickprod SET invest_ratio =
+		#{investRatio},modify_date = NOW()
+		WHERE
+		policy_number=#{policyNumber}
+		AND product_id=#{productId}
+
+	</update>
+
+	<!-- 상품별선택비중 통계 -->
+	<select id="pickProdCount" resultType="java.util.Map">
+		SELECT
+		`product`.`product_name` AS `product_name`,
+		SUM(`pickprod`.`invest_ratio`) AS `selection_ratio`
+		FROM
+		`pickprod`
+		INNER JOIN
+		`product`
+		ON
+		`pickprod`.`product_id` = `product`.`id`
+		GROUP BY
+		`product`.`product_name`;
+	</select>
+
+
+	<!--개별계약 내 상품 선택비중 -->
+	<select id="selectContractAll" parameterType="String"
+		resultType="pickProdDTO">
+		SELECT `pickprod`.*, `product`.`product_name` AS
+		`product_name`, `product`.`monthly_return` AS
+		`product_monthly_return`,
+		`product`.`querterly_return` AS
+		`product_querterly_return`,
+		`product`.`annual_return` AS
+		`product_annual_return`,
+		`product`.`total_return` AS
+		`product_total_return`
+		FROM `pickprod`
+		INNER
+		JOIN `product` ON
+		`pickprod`.`product_id` = `product`.`id`
+		WHERE
+		`pickprod`.`policy_number` = #{policyNumber}
+	</select>
+
+	<!-- 상품선택삭제 0809 -->
+	<delete id="delete" parameterType="String">
+		DELETE
+		FROM `pickprod`
+		WHERE
+		`pickprod`.`policy_number` = #{policyNumber}
+
+	</delete>
+	<!-- 상품변경시 입력 0809 -->
+	<insert id="changePickProd" parameterType="PickProdDTO">
+		INSERT INTO `pickprod`
+		(`policy_number`, `product_id`, `invest_ratio`,
+		`risk_level`)
+		VALUES
+		(#{policyNumber}, ${productId}, ${investRatio}, (SELECT `risk_level`
+		FROM `product`
+		WHERE `id` = ${productId}));
+
+	</insert>
+
+</mapper>
+

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 결과값은 UserDTO로 출력됨 다만 필드명이 같아야 함 -->
+<mapper namespace="com.mit.mapper.ContractMapper">
+
+	<!-- admin 해지접수중인 계약만 조회 -->
+	<select id="selectCancellation" resultType="contractDTO">
+		SELECT
+		`contract`.*
+		,`user`.`name` AS `name`
+		FROM `contract`
+		INNER JOIN `user`
+		ON
+		`contract`.`user_id` =`user`.`id`
+
+		WHERE `contract`.`contract_status` =
+		'해지접수중' AND
+		`contract`.`contract_type`='IRP'
+		LIMIT ${startRow},${size}
+	</select>
+
+	<select id="countCancellation" resultType="integer">
+		SELECT COUNT(*)
+		FROM
+		contract
+		where `contract_status` = '해지접수중' AND `contract_type`='IRP'
+	</select>
+
+	<!--admin 해지대상건 주민번호 가져오기 -->
+	<select id="selectCancel" parameterType="String"
+		resultType="contractDTO">
+		SELECT `contract`.* ,`user`.`ssn` AS `ssn`
+		FROM `contract`
+		INNER JOIN `user`
+		ON `contract`.`user_id` =`user`.`id`
+		WHERE
+		`policy_number` =
+		#{policyNumber} AND `contract`.`contract_type`='IRP'
+	</select>
+
+	<!-- userId기준으로 policyNumber 호출 -->
+	<select id="getPolicyNumberByUserId" parameterType="int"
+		resultType="string">
+		SELECT `policy_number`
+		FROM `contract`
+		WHERE `user_id` =
+		#{userId}
+		ORDER BY `entry_date` DESC
+		LIMIT 1
+	</select>
+
+
+	<!--admin관련함수라 이름 바꿈 해지접수중 -> 해지 -->
+	<update id="adminUpdate" parameterType="contractDTO">
+		UPDATE `contract`
+		SET
+		`contract_status` = #{contractStatus},
+		`set_amount`= 0,
+		`end_date`=
+		now()
+		WHERE
+		`policy_number` = #{policyNumber}
+	</update>
+
+	<!-- IRP가입 시 한도설정금액 입력 -->
+	<update id="updateamount" parameterType="contractDTO">
+		UPDATE `contract`
+		SET
+		set_amount = #{setAmount}
+		WHERE `policy_number` = #{policyNumber}
+	</update>
+
+	<insert id="create" parameterType="contractDTO">
+		INSERT INTO
+		`contract`(`user_id`, `policy_number`, `entry_date`,
+		`modify_date`)
+		VALUES (#{userId}, #{policyNumber}, NOW(), NOW())
+	</insert>
+
+	<!--admin 일별 가입현황 그래프 -->
+	<select id="dailyContractCount" resultType="java.util.Map">
+
+		SELECT
+		DATE(`entry_date`) AS entry_date, COUNT(*) AS contract_count
+		FROM
+		`contract`
+		WHERE `contract_type`='IRP' AND `contract_status`IN ('정상',
+		'해지', '해지접수중')
+		GROUP BY DATE(`entry_date`)
+	</select>
+
+	<!-- 사용자 본인것 해지시 본인상품리스트 출력 -->
+	<select id="selectContractByUserId" parameterType="Integer"
+		resultType="contractDTO">
+		SELECT `contract`.* ,`user`.`name` AS `name`
+		FROM `contract`
+		INNER JOIN `user`
+		ON `contract`.`user_id` =`user`.`id`
+		WHERE `user_id` =
+		${userId} AND `contract`.`contract_type`='IRP' AND
+		`contract`.`contract_status`='정상'
+		ORDER BY `modify_date` DESC
+		LIMIT 1
+	</select>
+
+
+	<!--고객이 해지신청하면 계약상태 변경 -->
+	<update id="updateContractStatus" parameterType="contractDTO">
+		UPDATE
+		`contract`
+		SET
+		`contract_status` = #{contractStatus},
+		`modify_date` =
+		now()
+		WHERE
+		`policy_number` = #{policyNumber}
+	</update>
+
+	<!-- 가입내역 조회 -->
+	<select id="selectOne" parameterType="String"
+		resultType="contractDTO">
+		SELECT `contract`.* ,`user`.`ssn` AS `ssn`
+		FROM `contract`
+		INNER JOIN `user`
+		ON `contract`.`user_id` =`user`.`id`
+		WHERE
+		`policy_number` = #{policyNumber}
+		ORDER BY `contract`.`modify_date`
+		DESC LIMIT 1
+	</select>
+
+	<update id="update" parameterType="contractDTO">
+		UPDATE `contract`
+		SET
+		`contract_status` = '해지',
+		`set_amount`= 0
+		WHERE `policy_number` =
+		#{policyNumber}
+	</update>
+
+	<select id="getMaxId" resultType="Integer">
+		SELECT IFNULL(MAX(id)+1, 1)
+		FROM `contract`
+	</select>
+
+	<!-- irp신규시 당사가입여부 체크0808추가 -->
+	<select id="selectAllContract" parameterType="Integer"
+		resultType="contractDTO">
+		SELECT *
+		FROM `contract`
+		WHERE `user_id` = ${userId} AND
+		`contract_status`='정상'
+	</select>
+
+
+	<!-- policyNumber를 기준으로 contractStatus 조회하는 쿼리 // deposit(다인) -->
+	<select id="getContractStatusByPolicyNumber" resultType="String">
+		SELECT
+		contract_Status
+		FROM contract
+		WHERE policy_Number = #{policyNumber}
+	</select>
+
+	<!-- policyNumber를 기준으로 setAmount 조회하는 쿼리 // deposit(다인) -->
+	<select id="getSetAmountByPolicyNumber" resultType="int">
+		SELECT
+		set_Amount
+		FROM contract
+		WHERE policy_Number = #{policyNumber}
+	</select>
+
+	<!-- admin 전체 계약 조회 0810 -->
+	<select id="selectAdimAllContract" resultType="contractDTO">
+		SELECT
+		`contract`.*
+		,`user`.`name` AS `name`
+		FROM `contract`
+		INNER JOIN `user`
+		ON
+		`contract`.`user_id` =`user`.`id`
+		WHERE
+		`contract`.`contract_type`='IRP'
+		ORDER BY
+		CASE WHEN
+		`contract`.`contract_status` = '정상' THEN 0
+		WHEN
+		`contract`.`contract_status` = '해지' THEN 1
+		ELSE 3 END, id
+		LIMIT
+		${startRow},${size}
+	</select>
+	<!-- admin 전체 계약 페이징 0810 -->
+	<select id="countContract" resultType="integer">
+		SELECT COUNT(*)
+		FROM
+		contract
+	</select>
+
+	<!-- admin 계약엑셀다운로드 0810 -->
+	<select id="excelAdimAllContract" resultType="contractDTO">
+		SELECT
+		`contract`.*
+		,`user`.`name` AS `name`
+		FROM `contract`
+		INNER JOIN `user`
+		ON
+		`contract`.`user_id` =`user`.`id`
+		WHERE
+		`contract`.`contract_type`='IRP'
+		ORDER BY
+		CASE WHEN
+		`contract`.`contract_status` = '정상' THEN 0
+		WHEN
+		`contract`.`contract_status` = '해지' THEN 1
+		ELSE 3 END, id
+	</select>
+
+	<!-- 사인저장 -->
+	<update id="updateContractConfirm" parameterType="contractDTO">
+		UPDATE `contract`
+		SET
+		confirm = #{confirm}
+		WHERE `policy_number` = #{policyNumber}
+	</update>
+
+	<!-- 삭제 일배치 -->
+	<delete id="delete">
+		DELETE `contract`.*
+		FROM contract
+		WHERE `contract`.contract_status = '입력중'
+		AND `contract`.modify_date &lt;= DATE_SUB(CURDATE(), INTERVAL 3 DAY);
+	</delete>
+
+	<!-- 계약상태별 count 0821 -->
+	<select id="contractStatusCount" resultType="java.util.Map">
+		SELECT
+		status_table.status AS contract_status,
+		IFNULL(contract_count_table.contract_count, 0) AS contract_count
+		FROM (
+		SELECT '정상' AS status
+		UNION ALL
+		SELECT '해지'
+		UNION ALL
+		SELECT '입력중'
+		UNION ALL
+		SELECT '해지접수중'
+		) AS status_table
+		LEFT JOIN (
+		SELECT `contract_status`, COUNT(*) AS contract_count
+		FROM `contract`
+		GROUP BY `contract_status`
+		) AS contract_count_table ON status_table.status =
+		contract_count_table.contract_status;
+
+	</select>
+
+	<!-- 삭제 일배치 -->
+	<delete id="contractDelete">
+		DELETE `contract`.*
+		FROM contract
+		WHERE `contract`.contract_status = '입력중'
+		AND `contract`.modify_date &lt;= DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+	</delete>
+
+
+</mapper>

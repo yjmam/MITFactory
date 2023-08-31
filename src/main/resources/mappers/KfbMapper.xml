@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 결과값은 UserDTO로 출력됨 다만 필드명이 같아야 함 -->
+<mapper namespace="com.mit.mapper.KfbMapper">
+	<!-- 관리자 해지승인시 한도 조절 -->
+	<update id="updateKfb" parameterType="contractDTO">
+		UPDATE `kfb`
+		SET
+		`limit_amount` = `limit_amount` - ${setAmount},`modify_date`=NOW()
+		WHERE `ssn` = #{ssn}
+	</update>
+
+	<!-- 입력한 한도 업데이트 -->
+	<update id="updateLimitAmount" parameterType="java.util.Map">
+		UPDATE `kfb`
+		SET `limit_amount` = `limit_amount` + #{setAmount},`modify_date`=NOW()
+		WHERE `ssn` = #{ssn}
+	</update>
+
+
+	<!-- 주민번호 기준의 kfb정보조회 -->
+	<select id="selectBySsn" parameterType="String"
+		resultType="KfbDTO">
+		SELECT * FROM kfb WHERE ssn = #{ssn}
+	</select>
+	
+	<!-- kfb정보 insert -->
+	<insert id="insertKfb" parameterType="KfbDTO">
+		INSERT INTO `kfb` (`ssn`,`name`,`limit_amount`,`entry_date`,
+		`modify_date`) VALUES (#{ssn},#{name},#{limitAmount},NOW(), NOW())
+	</insert>
+	
+</mapper>
+
+

@@ -1,0 +1,39 @@
+@charset "EUC-KR";
+
+.canvas-draw-box {
+   position: relative;
+}
+
+.canvas-draw-base {
+   border: 1px solid black;
+   width: 300px;
+   height: 100px;
+   /*    background-image: url(서명배경이미지); */
+   background-position-x: center;
+   background-position-y: center;
+   background-size: contain;
+   background-repeat-x: no-repeat;
+   background-repeat-y: no-repeat;
+   background-attachment: initial;
+   background-origin: initial;
+   background-clip: initial;
+   background-color: initial;
+}
+
+.canvas-draw-pad-box {
+   position: absolute;
+   /*    z-index: 9999; */
+   top: 0;
+   background-color: white;
+   display: none;
+}
+
+.canvas-draw-pad {
+   border: 1px solid black;
+}
+
+.modal-body {
+   max-height: calc(100vh - 200px);
+   overflow-y: auto;
+   line-height: 1.5;
+}

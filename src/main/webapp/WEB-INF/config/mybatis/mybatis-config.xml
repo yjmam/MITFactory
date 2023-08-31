@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+	PUBLIC "-//mybatis.org/DTD Config 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+	</settings>
+	<typeAliases>
+		<typeAlias alias="userDTO" type="com.mit.model.UserDTO" />
+		<typeAlias alias="accountDTO"
+			type="com.mit.model.AccountDTO" />
+		<typeAlias alias="contractDTO"
+			type="com.mit.model.ContractDTO" />
+		<typeAlias alias="depositDTO"
+			type="com.mit.model.DepositDTO" />
+		<typeAlias alias="investDTO" type="com.mit.model.InvestDTO" />
+		<typeAlias alias="kfbDTO" type="com.mit.model.KfbDTO" />
+		<typeAlias alias="pickProdDTO"
+			type="com.mit.model.PickProdDTO" />
+		<typeAlias alias="productDTO"
+			type="com.mit.model.ProductDTO" />
+			
+
+		<!-- <typeAlias alias="attachedDTO" type="com.mit.model.AttachedDTO" /> -->
+	</typeAliases>
+
+	<mappers>
+		<mapper resource="mappers/UserMapper.xml" />
+		<mapper resource="mappers/InvestMapper.xml" />
+		<mapper resource="mappers/ProductMapper.xml" />
+		<mapper resource="mappers/ContractMapper.xml" />
+		<mapper resource="mappers/PickProdMapper.xml" />
+		<mapper resource="mappers/AccountMapper.xml" />
+		<mapper resource="mappers/KfbMapper.xml" />
+		<mapper resource="mappers/DepositMapper.xml" />
+
+		<!-- <mapper resource="mappers/AttachMapper.xml" /> -->
+	</mappers>
+</configuration>
+	

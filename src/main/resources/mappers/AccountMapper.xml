@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mit.mapper.AccountMapper">
+
+	<insert id="insert" parameterType="AccountDTO">
+		INSERT INTO account
+		(policy_number,bank,bank_account,auto_date,auto_amount)
+		VALUES
+		(#{policyNumber},#{bank},#{bankAccount},#{autoDate},#{autoAmount})
+	</insert>
+
+	<select id="selectOne" parameterType="String"
+		resultType="AccountDTO">
+		SELECT `account`.* FROM `account`
+		WHERE `policy_number` =
+		#{policyNumber}
+		ORDER BY `account`.`modify_date` DESC LIMIT 1
+	</select>
+
+	<select id="selectAccount" parameterType="String"
+		resultType="accountDTO">
+		SELECT *
+		FROM `account`
+		WHERE `policy_number`=#{policyNumber}
+		ORDER BY `modify_date` DESC
+		LIMIT 1
+	</select>
+
+
+</mapper>

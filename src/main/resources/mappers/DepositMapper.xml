@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 결과값은 UserDTO로 출력됨 다만 필드명이 같아야 함 -->
+<mapper namespace="com.mit.mapper.DepositMapper">
+
+  <select id="getContractByUserId" resultType="com.mit.model.ContractDTO">
+    SELECT *
+    FROM contract
+    WHERE user_Id = #{userId}
+  </select>
+    
+    <insert id="insertDeposit" parameterType="com.mit.model.DepositDTO">
+    INSERT INTO `deposit` (policy_Number,  input_amount,  writer, entry_Date)
+    VALUES (#{policyNumber},  #{inputAmount},  #{writer}, now())
+</insert>
+
+ <!--0809 추가 총입금액 확인 -->
+   <select id="sumDepositAmount" parameterType="String" resultType="Integer">
+   SELECT SUM(`input_amount`) AS `total_amount` 
+   FROM `deposit`
+   WHERE `policy_number` = #{policyNumber}
+   </select>
+   <!--0809 추가 deposit유무 체크 -->
+   <select id="selectAll" parameterType="String" resultType="com.mit.model.DepositDTO">
+   SELECT * 
+   FROM `deposit`
+   WHERE `policy_number` = #{policyNumber}
+   </select>
+   <!--0811 추가 계약해지시 deposit 삭제 -->
+   <delete id="deleteDeposit" parameterType="String">
+    DELETE
+    FROM `deposit`
+    WHERE `policy_number` = #{policyNumber}
+   </delete>
+
+</mapper>

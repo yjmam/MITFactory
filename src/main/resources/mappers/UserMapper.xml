@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 결과값은 UserDTO로 출력됨 다만 필드명이 같아야 함 -->
+<mapper namespace="com.mit.mapper.UserMapper">
+	<select id="auth" parameterType="userDTO" resultType="userDTO">
+		SELECT *
+		FROM `user`
+		WHERE `username` = #{username}
+		AND
+		`password` = #{password}
+	</select>
+
+	<select id="selectOneByUsername" parameterType="userDTO"
+		resultType="userDTO">
+		SELECT * FROM `user`
+		WHERE `username` = #{username}
+	</select>
+
+   <insert id="register" parameterType="userDTO">
+      INSERT INTO
+      `user`(`username`, `password`, `ssn`, `name`, `email`, `tel`, `birth_year`, `birth_month`, `birth_day`,`recommender_id`,`entry_date`,
+      `modify_date`)
+      VALUES(#{username}, #{password}, #{ssn}, #{name}, #{email}, #{tel}, #{birthYear}, #{birthMonth}, #{birthDay},#{recommenderId}, NOW(),
+      NOW())
+   </insert>
+
+	<update id="update" parameterType="userDTO">
+		UPDATE user
+		SET
+		password =
+		#{password}
+		WHERE id = ${id}
+	</update>
+
+	<select id="selectOne" parameterType="integer" resultType="userDTO">
+		SELECT * FROM user
+		WHERE id = ${id}
+	</select>
+
+
+	<select id="selectAll" resultType="userDTO">
+		SELECT * FROM user
+	</select>
+	
+
+
+</mapper>

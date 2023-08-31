@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 결과값은 UserDTO로 출력됨 다만 필드명이 같아야 함 -->
+<mapper namespace="com.mit.mapper.InvestMapper">
+    <!-- 투자 결과를 저장하는 메서드 -->
+    <insert id="saveInvestResult" parameterType="com.mit.model.InvestDTO">
+        INSERT INTO
+        `invest`(`user_id`,`invest_result`, `invest_date`, `modify_date`)
+        VALUES(#{userId}, #{investResult}, NOW(), NOW())
+    </insert>
+    
+    <select id="selectOne" parameterType="Integer" resultType="InvestDTO">
+		SELECT invest_result
+		FROM invest
+		where user_id = #{userId}
+		ORDER BY modify_date DESC LIMIT 1
+	</select>
+    
+</mapper>
+
+
+
+
+
+

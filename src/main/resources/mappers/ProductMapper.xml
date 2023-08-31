@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 결과값은 UserDTO로 출력됨 다만 필드명이 같아야 함 -->
+<mapper namespace="com.mit.mapper.ProductMapper">
+
+	<insert id="register" parameterType="productDTO">
+		INSERT INTO
+		`product`(`product_name`, `risk_level`,`product_status`,
+		`manage_company`,`fee`,`rate`,`content`,
+		`monthly_return`,`querterly_return`,`annual_return`,`total_return`,`entry_date`,
+		`modify_date`)
+		VALUES(#{productName}, #{riskLevel},#{productStatus}
+		,#{manageCompany},#{fee},#{rate}, #{content},
+		#{monthlyReturn},#{querterlyReturn},#{annualReturn},#{totalReturn}
+		,NOW(),NOW())
+	</insert>
+
+	<select id="selectAll" resultType="productDTO">
+		SELECT *
+		FROM product
+		ORDER BY
+		CASE WHEN product_status = '판매중' THEN 0 ELSE 1 END, id
+		LIMIT
+		${startRow},${size}
+	</select>
+
+	<!-- 상품공시실용 전체상품 -->
+	<select id="selectAllStorage" resultType="productDTO">
+		SELECT *
+		FROM product
+		ORDER BY
+		CASE WHEN product_status = '판매중' THEN 0 ELSE 1 END, id
+	</select>
+
+	<select id="count" resultType="integer">
+		SELECT COUNT(*) FROM product
+	</select>
+
+	<select id="selectOne" parameterType="Integer"
+		resultType="productDTO">
+		SELECT *
+		FROM product
+		where id = ${productId}
+	</select>
+
+	<update id="update" parameterType="productDTO">
+		UPDATE `product`
+		SET
+		`product_name`= #{productName},
+		`risk_level` = #{riskLevel},
+		`product_status` = #{productStatus},
+		`manage_company` =
+		#{manageCompany},
+		`fee` = #{fee},
+		`rate`= #{rate},
+		`content`= #{content},
+		`monthly_return` = #{monthlyReturn},
+		`querterly_return` =
+		#{querterlyReturn},
+		`annual_return`=#{annualReturn},
+		`total_return`=
+		#{totalReturn},
+		`modify_date` = now()
+		WHERE `id`=${id}
+	</update>
+
+
+	<select id="selectInvest" parameterType="integer"
+		resultType="ProductDTO">
+		SELECT p.*
+		FROM product p
+		INNER JOIN (
+		SELECT user_id, MAX(id)
+		AS max_id
+		FROM invest
+		WHERE user_id = #{userId}
+		GROUP BY user_id
+		) AS i ON
+		(
+		(p.risk_level in ('고위험', '중위험', '저위험','초저위험') AND (
+		SELECT
+		invest_result
+		FROM
+		invest
+		WHERE user_id = i.user_id AND id = i.max_id
+		) =
+		'고위험')
+		OR
+		(p.risk_level in ('중위험', '저위험','초저위험') AND (
+		SELECT
+		invest_result
+		FROM invest
+		WHERE user_id = i.user_id AND id = i.max_id
+		) =
+		'중위험')
+		OR
+		(p.risk_level
+		in ('저위험','초저위험') AND (
+		SELECT invest_result
+		FROM
+		invest
+		WHERE user_id =
+		i.user_id AND id = i.max_id
+		) = '저위험')
+		);
+	</select>
+
+	<select id="selectSimpleProduct" parameterType="integer"
+		resultType="ProductDTO">   <!-- 금리연동형상품 조회 추가 -->
+		SELECT * FROM product WHERE rate IS NOT NULL AND rate != 0 AND risk_level = '초저위험';
+	</select>
+
+	<!-- 수익률 기준 상품조회 (user 위험등급 별) -->
+	<select id="selectTopTotalReturn" parameterType="integer"
+		resultType="ProductDTO">
+		SELECT p.*
+		FROM product p
+		INNER JOIN (
+		SELECT user_id,
+		invest_result AS latest_risk_level
+		FROM invest
+		WHERE user_id = #{userId}
+		AND modify_date =(
+		select MAX(modify_date)
+		from invest
+		where user_id=
+		#{userId}
+		)
+		) AS i ON
+		(
+		(p.risk_level in ('고위험', '중위험', '저위험', '초저위험') AND
+		i.latest_risk_level = '고위험')
+		OR
+		(p.risk_level in ('중위험', '저위험', '초저위험')
+		AND i.latest_risk_level = '중위험')
+		OR
+		(p.risk_level in ('저위험', '초저위험') AND
+		i.latest_risk_level = '저위험')
+		)
+		ORDER BY p.total_return DESC
+		LIMIT 5;
+	</select>
+
+	<!-- 인기상품(고위험) -->
+	<select id="selectTopProductsForHighRisk"
+		resultType="ProductDTO">
+		SELECT p.*
+		FROM product p
+		JOIN (
+		SELECT pp.product_id
+		FROM
+		pickprod pp
+		WHERE pp.risk_level = '고위험'
+		GROUP BY pp.product_id
+		ORDER BY
+		COUNT(pp.product_id) DESC
+		LIMIT 3
+		) AS pick ON p.id = pick.product_id;
+	</select>
+
+	<!-- 인기상품(중위험) -->
+	<select id="selectTopProductsForMediumRisk"
+		resultType="ProductDTO">
+		SELECT p.*
+		FROM product p
+		JOIN (
+		SELECT pp.product_id
+		FROM
+		pickprod pp
+		WHERE pp.risk_level = '중위험'
+		GROUP BY pp.product_id
+		ORDER BY
+		COUNT(pp.product_id) DESC
+		LIMIT 3
+		) AS pick ON p.id = pick.product_id;
+	</select>
+
+	<!-- 인기상품(저위험) -->
+	<select id="selectTopProductsForlowRisk" resultType="ProductDTO">
+		SELECT p.*
+		FROM product p
+		JOIN (
+		SELECT pp.product_id
+		FROM pickprod pp
+		WHERE
+		pp.risk_level = '저위험'
+		GROUP BY pp.product_id
+		ORDER BY
+		COUNT(pp.product_id) DESC
+		LIMIT 3
+		) AS pick ON p.id = pick.product_id;
+	</select>
+	
+		<!-- 인기상품(초저위험) -->
+	<select id="selectTopForveryLowRisk" resultType="ProductDTO">
+		SELECT p.*
+		FROM product p
+		JOIN (
+		SELECT pp.product_id
+		FROM pickprod pp
+		WHERE
+		pp.risk_level = '초저위험'
+		GROUP BY pp.product_id
+		ORDER BY
+		COUNT(pp.product_id) DESC
+		LIMIT 3
+		) AS pick ON p.id = pick.product_id;
+	</select>
+
+	<select id="searchProductsByKeyword" resultType="ProductDTO">
+		SELECT * FROM
+		product WHERE product_name LIKE CONCAT('%', #{keyword}, '%');
+	</select>
+
+	<select id="searchSimpleProductsByKeyword" parameterType="string" resultType="ProductDTO">
+		SELECT *
+		FROM product
+		WHERE product_name LIKE CONCAT('%', #{keyword}, '%')
+		AND risk_level = '초저위험';
+	</select>
+
+
+
+</mapper>

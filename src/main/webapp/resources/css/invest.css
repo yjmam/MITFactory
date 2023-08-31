@@ -1,0 +1,105 @@
+@charset "EUC-KR";
+
+/* CSS for custom radio buttons */
+.btn {
+   margin-bottom: 10px;
+   position: relative;
+   padding-left: 30px;
+   font-size: 16px;
+}
+
+.text-right button.btn-primary {
+        font-size: 18px; /* 원하는 크기로 수정해주세요 */
+        padding: 10px 30px; /* 버튼의 상하, 좌우 padding 조절 */
+        border: none; /* 테두리 삭제 */
+        border-radius: 5%;
+    }
+
+.text-right a.btn-primary {
+    font-size: 18px; /* 원하는 크기로 수정해주세요 */
+    padding: 5px 20px; /* 버튼의 상하, 좌우 padding 조절 */
+    border: none; /* 테두리 삭제 */
+    border-radius: 5%;
+}
+/* Hidden default radio button */
+input[type="radio"] {
+   display: none;
+}
+
+/* Selected style for the label */
+.selected {
+   background-color: #000;
+   color: #fff;
+}
+
+/* Additional styles for the custom radio buttons */
+.btn::before {
+   content: '';
+   position: absolute;
+   left: 0;
+   top: 50%;
+   transform: translateY(-50%);
+   width: 1.25em;
+   height: 1.25em;
+   border: max(2px, 0.1em) solid gray;
+   border-radius: 50%;
+   transition: border 0.5s ease-in-out;
+}
+
+input[type="radio"]:checked+.btn::before {
+   border: 0.4em solid tomato;
+}
+
+input[type="radio"]:focus-visible+.btn::before {
+   outline-offset: max(2px, 0.1em);
+   outline: max(2px, 0.1em) dotted tomato;
+}
+
+.btn:hover::before {
+   box-shadow: 0 0 0 max(4px, 0.2em) lightgray;
+   cursor: pointer;
+}
+
+input[type="radio"]:hover+.btn::before {
+   cursor: pointer;
+}
+
+input[type="radio"]:disabled+.btn::before {
+   background-color: lightgray;
+   box-shadow: none;
+   opacity: 0.7;
+   cursor: not-allowed;
+}
+
+
+fieldset {
+   display: flex;
+   justify-content: left;
+   border: none;
+   margin: 0;
+   padding: 20px 20px;
+}
+
+*, *::before, *::after {
+   box-sizing: border-box;
+}
+
+/* Left-align the choices */
+.btn {
+   text-align: left;
+}
+
+legend {
+   font-size: 20px; /* Increase font size */
+   color: #007bff; /* Change text color to blue */
+   border-bottom: 2px solid #007bff;
+   /* Add a blue border line at the bottom */
+   padding-bottom: 5px; /* Add some padding at the bottom */
+   margin-bottom: 20px; /* Add some margin below the legend */
+}
+
+footer {
+   position: fixed;
+   bottom: 0;
+   width: 100%;
+}
