@@ -387,12 +387,5 @@ public class AdminController {
 		return result;
 	}
 
-	
-	//그냥
-	public int Delete() {
-		System.out.println("삭제 들어왔어?");
-		int result = CONTRACT_SERVICE.contractDelete();
-		System.out.println("삭제개수" + result);
-		return result;
-	}
+
 }
