@@ -188,7 +188,7 @@
 								<a href="/user/myContract/${logInId}">
 									<h1 class="counter-title">
 										<i class="bi bi-briefcase"></i>
-									</h1> <span class="counter-text">나의퇴직연금</span>
+									</h1> <span class="counter-text">나의퇴직연금222</span>
 								</a>
 							</div>
 						</div>
