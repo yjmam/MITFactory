@@ -543,12 +543,12 @@ public class ProductController {
 					while ((line = br.readLine()) != null) {
 						if (firstLine) {
 							firstLine = false;
-							continue; // Skip header line
+							continue; // 헤더 제외
 						}
 						String decodedLine = decodeFromEucKrToUtf8(line);
-						String[] fields = decodedLine.split(","); // Assuming comma-separated values
+						String[] fields = decodedLine.split(","); // 
 
-						if (fields.length == 7) { // Assuming 7 fields in the CSV
+						if (fields.length == 7) { //
 							ProductDTO product = new ProductDTO();
 							product.setProductName(fields[0]);
 							product.setRiskLevel(fields[1]);
