@@ -381,9 +381,7 @@ public class AdminController {
 	@ResponseBody
 	@RequestMapping(value = "contractDelete", method = RequestMethod.GET)
 	public int contractDelete() {
-		System.out.println("삭제 ㅏㅏㅇ낭나?");
 		int result = CONTRACT_SERVICE.contractDelete();
-		System.out.println("삭제개수" + result);
 		return result;
 	}
 
